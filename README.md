@@ -1,2 +1,2 @@
-# wort.github.io
+# name15.github.io
 Web dictionary.
