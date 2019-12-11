@@ -1,2 +1,2 @@
 # name15.github.io
-Working on project : Web dictionary.
+Subproject: A program, with can search for a word in a database on the server-side.
