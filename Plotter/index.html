@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Function</title>
+		<style>
+body {
+	background-color: lightgray;
+}
+#coord{
+	
+}
+#click{
+	position: relative;
+	float: right;
+}
+		</style>
+	</head>
+	<body>
+		<p id="coord">x: 0<br>y:0<br>s:1</p>
+		<p id="click"></p> 
+		<canvas id="canvas"></canvas>
+		<p>Move: WASD<br>Scale: FR</p>
+		<script>
+const canvas = document.querySelector("canvas");
+const coord = document.getElementById("coord");
+const click = document.getElementById("click");
+const ctx = canvas.getContext("2d");
+
+canvas.width = 300; canvas.height = 200;
+
+var step = 50,
+	moveSpeed = 10,
+	scaleSpeed = 1.1;
+
+var maxRes = Math.floor(canvas.width, canvas.height);
+
+function mainloop(){
+	if(input())	update();
+}
+
+function checker(ax, ay){
+	var x = ax, y = -ay;
+	if ((x*x*x-4*x)*(x*x+2*x-8)*(x*x+7*x+10)>=y*50) return true;
+	return false;
+}
+
+
+var transformX = 0,
+	transformY = 0,
+	scale = 0.075;
+
+update();
+function update(){
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	for (x=0; x<canvas.width; x++){
+		for (y=0; y<canvas.height; y++){
+			let newX = (x-canvas.width/2)*scale+transformX;
+				newY = (y-canvas.height/2)*scale-transformY;
+			if (Math.round(newX/scale)==0 || Math.round(newY/scale)==0) {ctx.fillStyle = "#000000"; ctx.fillRect(x, y, 1, 1); continue;}
+			ctx.fillStyle = (newY>0) ? "#FF0000" : "#0000FF"
+			if (!checker(newX, newY) && (newY>0) || checker(newX, newY) && (newY<0)) ctx.fillRect(x, y, 1, 1); 
+		}
+	}
+}
+
+canvas.addEventListener("click", function(e){ 
+	console.log(e);
+	let x = e.pageX-canvas.offsetLeft, y = e.pageY-canvas.offsetTop;
+	let newX = (x-canvas.width/2)*scale+transformX;
+				newY = (y-canvas.height/2)*scale-transformY;
+	click.innerHTML = "x: "+newX+"<br>y: "+newY;
+})
+
+
+var loopId = setInterval(mainloop, step);
+
+//input
+var map = [];
+onkeydown = onkeyup = function(e){
+	if (loopId){
+		e = e || event; // to deal with IE
+		map[e.key] = e.type == 'keydown';
+		if (map['Escape']) pause();
+	}
+}
+
+
+
+function input(){
+	var x = 0,
+		y = 0,
+		s = 0;
+	//Transform
+	if (map["w"]) y++;
+	if (map["s"]) y--;
+	if (map["d"]) x++;
+	if (map["a"]) x--;
+	//Scale
+	if (map["r"]) s++;
+	if (map["f"]) s--;
+	
+	transformX += x*moveSpeed*scale;
+	transformY += y*moveSpeed*scale;
+	scale *= Math.pow(scaleSpeed, s);
+	
+	coord.innerHTML = "x: "+transformX+"<br>y: "+transformY+"<br>s: "+scale;
+	
+	if (x==0 && y==0 && s==0) return false;
+	return true;
+}
+		</script>
+	</body>
+</html>
